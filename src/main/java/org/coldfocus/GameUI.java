@@ -39,7 +39,7 @@ public class GameUI {
     }
 
     public boolean askToPlayAgain() {
-        System.out.println("Сыграем ещё? (y/n)");
+        System.out.println("Сыграем ещё? Нажми 'y' для начала игры или любой другой символ для выхода");
         return scanner.nextLine().trim().toLowerCase().startsWith("y");
     }
 
