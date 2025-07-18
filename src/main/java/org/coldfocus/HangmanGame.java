@@ -10,6 +10,7 @@ public class HangmanGame {
     private final List<String> words = new ArrayList<>();
     private final Random random = new Random();
     private final GameUI ui = new GameUI();
+
     public void start() throws IOException, InterruptedException {
         loadWords();
         printGreeting();
@@ -18,8 +19,6 @@ public class HangmanGame {
             playGame();
         } while (ui.askToPlayAgain());
     }
-
-
 
     private void playGame() throws IOException, InterruptedException {
         String hiddenWord = words.get(random.nextInt(words.size()));
@@ -37,12 +36,14 @@ public class HangmanGame {
 
             char letter = ui.getLetter("Введите букву:");
 
-            if (!Character.isLetter(letter) || Character.UnicodeBlock.of(letter) != Character.UnicodeBlock.CYRILLIC) {
-                ui.print("Введите русскую букву!");
+            // Проверяем, вводили ли уже эту букву
+            if (word.getGuessedWord().indexOf(letter) >= 0 || wrongLetters.indexOf(String.valueOf(letter)) != -1) {
+                ui.print("Вы уже вводили эту букву!");
                 Thread.sleep(1000);
                 continue;
             }
 
+            // Проверяем, есть ли буква в слове
             if (word.tryGuess(letter)) {
                 if (word.isGuessed()) {
                     ui.clearScreen();
@@ -51,18 +52,15 @@ public class HangmanGame {
                     break;
                 }
             } else {
-                if (wrongLetters.indexOf(String.valueOf(letter)) == -1) {
-                    wrongLetters.append(letter).append(" ");
-                    gallows.wrongGuess();
-                    if (gallows.isDead()) {
-                        ui.clearScreen();
-                        gallows.print();
-                        ui.print("Вы проиграли! Слово было: " + word.getOriginal());
-                        break;
-                    }
-                } else {
-                    ui.print("Вы уже вводили эту букву.");
-                    Thread.sleep(1000);
+                // Буквы нет в слове → добавляем в неверные
+                wrongLetters.append(letter).append(" ");
+                gallows.wrongGuess();
+
+                if (gallows.isDead()) {
+                    ui.clearScreen();
+                    gallows.print();
+                    ui.print("Вы проиграли! Скрытое слово: " + word.getOriginal());
+                    break;
                 }
             }
         }
@@ -82,7 +80,6 @@ public class HangmanGame {
             }
         }
     }
-
 
 
     private void printGreeting() {
